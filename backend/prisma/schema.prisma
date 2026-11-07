@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  RESEARCHER
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  TRIAGED
+  RESOLVED
+  REJECTED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(RESEARCHER)
+  createdAt    DateTime @default(now())
+
+  reports  Report[]
+  comments Comment[]
+}
+
+model Report {
+  id           String   @id @default(uuid())
+  userId       String
+  title        String
+  targetSystem String
+  severity     Severity @default(LOW)
+  status       Status   @default(PENDING)
+  bountyAmount Decimal  @default(0.00) @db.Decimal(10, 2)
+  details      String
+  isDisclosed  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments Attachment[]
+  comments    Comment[]
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  reportId     String
+  originalName String
+  storedName   String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  reportId  String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
