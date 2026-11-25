@@ -64,3 +64,4 @@ Thumbs.db
 Docker
 
 .docker/
+.vite/
