@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import { verifyToken, requireRole } from './middleware/authMiddleware.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +28,8 @@ app.get('/api/admin/verify', verifyToken, requireRole('ADMIN'), (req, res) => {
     user: req.user,
   });
 });
+
+app.use('/api/reports', reportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
