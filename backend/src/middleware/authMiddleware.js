@@ -8,8 +8,12 @@ export const verifyToken = (req, res, next) => {
         ? authHeader.split(' ')[1]
         : null;
 
-    const token = req.cookies?.token || req.cookies?.jwt || bearerToken;
-
+    const token =
+      req.cookies?.bugbounty_token ||
+      req.cookies?.token ||
+      req.cookies?.jwt ||
+      bearerToken;
+      
     if (!token) {
       return res.status(401).json({
         error: 'Unauthorized: Authentication token is missing.',
