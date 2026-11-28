@@ -1,10 +1,11 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache openssl make g++ python3
-
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 COPY package*.json ./
+COPY prisma ./prisma/
 RUN npm install
 
 COPY . .
