@@ -31,23 +31,6 @@ export default function SubmitReport({ initialReport = null, onCancel, onSuccess
         body: JSON.stringify({ title, targetSystem, severity, details })
       });
 
-      if (res.status === 404) {
-        // Backend Task 3.1/3.2 not merged yet — allow local UI preview flow
-        if (onSuccess) {
-          onSuccess({
-            id: initialReport?.id || `preview-${Date.now()}`,
-            title,
-            targetSystem,
-            severity,
-            status: initialReport?.status || 'PENDING',
-            bountyAmount: initialReport?.bountyAmount || '0.00',
-            details,
-            createdAt: initialReport?.createdAt || new Date().toISOString()
-          });
-        }
-        return;
-      }
-
       const json = await res.json();
       if (!res.ok) {
         throw new Error(json.error || 'Failed to save report');

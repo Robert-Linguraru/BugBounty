@@ -2,34 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const SAMPLE_REPORTS = [
-  {
-    id: 'preview-1',
-    title: 'IDOR on User Profile Endpoint',
-    targetSystem: 'api.example.com',
-    severity: 'HIGH',
-    status: 'RESOLVED',
-    bountyAmount: '750.00',
-    details: 'Changing userId parameter exposes private email addresses.',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'preview-2',
-    title: 'Stored XSS in Comment Thread',
-    targetSystem: 'app.example.com',
-    severity: 'MEDIUM',
-    status: 'PENDING',
-    bountyAmount: '0.00',
-    details: 'Unescaped script tags execute on report detail page.',
-    createdAt: new Date().toISOString()
-  }
-];
-
 export default function Dashboard({ onNewReport, onEditReport }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [usingMock, setUsingMock] = useState(false);
 
   const fetchReports = useCallback(async () => {
     setLoading(true);
@@ -40,13 +16,6 @@ export default function Dashboard({ onNewReport, onEditReport }) {
         credentials: 'include'
       });
 
-      if (res.status === 404) {
-        // Backend Task 3.1 not merged yet — fall back cleanly so UI can be tested
-        setReports(SAMPLE_REPORTS);
-        setUsingMock(true);
-        return;
-      }
-
       const json = await res.json();
       if (!res.ok) {
         throw new Error(json.error || 'Failed to load reports');
@@ -56,7 +25,6 @@ export default function Dashboard({ onNewReport, onEditReport }) {
         ? json
         : json.data?.reports || json.reports || json.data || [];
       setReports(list);
-      setUsingMock(false);
     } catch (err) {
       setError(err.message || 'Unable to fetch reports');
     } finally {
@@ -70,10 +38,6 @@ export default function Dashboard({ onNewReport, onEditReport }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this report?')) return;
-    if (usingMock) {
-      setReports((prev) => prev.filter((r) => r.id !== id));
-      return;
-    }
 
     try {
       const res = await fetch(`${API_URL}/api/reports/${id}`, {
@@ -114,21 +78,6 @@ export default function Dashboard({ onNewReport, onEditReport }) {
           + Submit New Report
         </button>
       </div>
-
-      {usingMock && (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            backgroundColor: '#fef3c7',
-            border: '1px solid #f59e0b',
-            borderRadius: '4px',
-            fontSize: '0.9rem'
-          }}
-        >
-          Showing preview data (<code>GET /api/reports</code> is not live yet).
-        </div>
-      )}
 
       {error && (
         <div role="alert" style={{ color: '#b91c1c', marginBottom: '1rem' }}>
