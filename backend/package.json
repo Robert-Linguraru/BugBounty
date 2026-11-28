@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "postinstall": "prisma skills sync || exit 0",
+    "postinstall": "prisma generate && (prisma skills sync || exit 0)",
     "db:seed": "prisma db seed"
   },
   "dependencies": {
